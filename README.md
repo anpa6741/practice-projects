@@ -1,1 +1,1 @@
-# practice-projects
+# This repository contains freecodecamp projects.
