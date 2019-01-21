@@ -20,18 +20,6 @@ class Header extends React.Component {
 class Editor extends React.Component {
   constructor(props){
     super(props);
-
-    this.state = {
-      textArea: this.props.textArea
-    }
-    this.handleChange = this.handleChange.bind(this);
-  }
-
-  handleChange(event){
-      console.log("Handle Change");
-      this.setState({
-        textArea: event.target.value
-      });
   }
 
   render() {
@@ -39,15 +27,66 @@ class Editor extends React.Component {
       <div className='editor'>
         <Header name='Editor' />
         <textarea
-          rows="15" cols="115" onChange={this.handleChange}
-          value={this.state.textArea}
+          rows="15" cols="115" onChange={this.props.handleChange}
+          value={this.props.textArea}
         />
       </div>
   );
   }
 }
 
-Editor.defaultProps = {
+class Previewer extends React.Component {
+
+   constructor(props) {
+     super(props);
+   }
+
+   render() {
+     return (
+       <div className='previewer'>
+         <Header name='Previewer'/>
+         <p>{this.props.display}</p>
+       </div>
+     );
+   }
+ }
+
+
+class App extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+     inputValue: this.props.textArea
+    }
+
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange(event){
+      console.log("Handle Change");
+      this.setState({
+        inputValue: event.target.value
+   });
+  }
+
+  render() {
+    return (
+      <div>
+        <div>
+          <Editor textArea={this.state.inputValue} handleChange={this.handleChange} />
+        </div>
+        <div>
+          <Previewer display={this.state.inputValue}/>
+        </div>
+      </div>
+    );
+  }
+}
+
+
+App.defaultProps = {
    textArea: `# Welcome to my React Markdown Previewer!
 
 ## This is a sub-heading...
@@ -94,42 +133,6 @@ And here. | Okay. | I think we get it.
 ![React Logo w/ Text](https://goo.gl/Umyytc)
 `
  }
-
-class Previewer extends React.Component {
-
-   constructor(props) {
-     super(props);
-   }
-   render() {
-     return (
-       <div className='previewer'>
-         <Header name='Previewer'/>
-         <h1>Render Stuff</h1>
-       </div>
-     );
-   }
- }
-
-
-class App extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    return (
-      <div>
-        <div>
-          <Editor />
-        </div>
-        <div>
-          <Previewer />
-        </div>
-      </div>
-    );
-  }
-}
-
 
 ReactDOM.render(
   <App />,
