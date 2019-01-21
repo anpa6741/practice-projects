@@ -17,7 +17,7 @@ class Header extends React.Component {
   }
 }
 
-class TextArea extends React.Component {
+class Editor extends React.Component {
   constructor(props){
     super(props);
 
@@ -36,15 +36,18 @@ class TextArea extends React.Component {
 
   render() {
     return (
-      <textarea
-        rows="15" cols="115" onChange={this.handleChange}
-        value={this.state.textArea}
-      />
+      <div className='editor'>
+        <Header name='Editor' />
+        <textarea
+          rows="15" cols="115" onChange={this.handleChange}
+          value={this.state.textArea}
+        />
+      </div>
   );
   }
 }
 
-TextArea.defaultProps = {
+Editor.defaultProps = {
    textArea: `# Welcome to my React Markdown Previewer!
 
 ## This is a sub-heading...
@@ -92,45 +95,43 @@ And here. | Okay. | I think we get it.
 `
  }
 
-
-class Editor extends React.Component {
-
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    return (
-      <div className='editor box-layout'>
-        <Header name='Editor'/>
-        <TextArea/>
-      </div>
-    );
-  }
-}
-
 class Previewer extends React.Component {
 
+   constructor(props) {
+     super(props);
+   }
+   render() {
+     return (
+       <div className='previewer'>
+         <Header name='Previewer'/>
+         <h1>Render Stuff</h1>
+       </div>
+     );
+   }
+ }
+
+
+class App extends React.Component {
+
   constructor(props) {
     super(props);
   }
   render() {
     return (
-      <div className='previewer box-layout'>
-        <Header name='Previewer'/>
+      <div>
+        <div>
+          <Editor />
+        </div>
+        <div>
+          <Previewer />
+        </div>
       </div>
     );
   }
 }
 
 
-const App = (
-  <div>
-    <Editor />
-    <Previewer />
-  </div>
-);
-
 ReactDOM.render(
-  App,
+  <App />,
   domContainer
 );
