@@ -4,8 +4,8 @@
   box-sizing: border-box;
 }
 
-.box {
-  background-color: blue;
+body {
+    background-color: #7FFFD4;
 }
 
 #container {
@@ -19,7 +19,7 @@
   display: flex;
   flex-direction: column;
   width: 70%;
-  margin: 50px 0 50px 100px;
+  margin: 50px 0 50px 90px;
 }
 
 .previewer{
@@ -27,6 +27,8 @@
   border: solid 1px black;
   width: 80vw;
   margin: 50px 0;
+  background-color: #D0ECE7;
+  padding: 5px;
 }
 
 header {
@@ -71,6 +73,6 @@ textarea::placeholder{
   white-space: pre;
 }
 
-p {
-  white-space: pre;
+.editor > p {
+  white-space: pre
 }
