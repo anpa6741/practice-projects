@@ -35,6 +35,70 @@ class Editor extends React.Component {
   }
 }
 
+class RenderText extends React.Component {
+
+  render() {
+    let word = this.props.markup;
+    let start = word[0];
+    let text = word[1].replace(/_/g,'');
+    let end = word.slice(2);
+
+    return ( <div>
+        <p>
+            {start}
+            <span style={this.props.inputStyle}>{text}</span>
+            {end}
+        </p>
+      </div>
+    );
+  }
+}
+
+class RenderLink extends React.Component {
+
+  render() {
+
+    let markup = this.props.markup;
+    let start = markup[0];
+    /* parsing the url from the string */
+    let linkLoc = markup[1].slice(markup[1].indexOf('https'), markup[1].indexOf(')'));
+    /* parsing remaining text from the given line */
+    let end = markup[1].split(')').slice(1);
+
+    return (
+            <div>
+                <p>
+                  {start}
+                  <a href={linkLoc} target="_blank">[links]</a>
+                  {end}
+                 </p>
+            </div>
+        );
+    }
+}
+
+class RenderList extends React.Component {
+
+  render() {
+    let markup = this.props.markup;
+    let indent = markup.split('-')[0];
+    let inputStyle = '';
+
+    {
+      indent.length <= 1 ?
+        inputStyle = {listStyleType: "disc", whiteSpace: "pre"} :
+          indent.length >1 && indent.length < 3 ?
+              inputStyle={listStyleType: "circle", whiteSpace: "pre"} :
+                  inputStyle={listStyleType: "square", whiteSpace: "pre"}
+    }
+
+    let text = markup.split('-').join('');
+    return (
+      <li style={inputStyle}>{text}</li>
+    );
+  }
+}
+
 class Previewer extends React.Component {
 
    constructor(props) {
@@ -49,76 +113,56 @@ class Previewer extends React.Component {
      const linksRegex = /\[links\]/;
      const singleTicksRegex = /(?<!`)`{1}(?!`)/;
      const multiTicksRegex = /^`{3}/gim;
+     const h1regex = /^#\s/;
+     const h2regex = /^##\s/;
+     const h3regex = /^###\s/;
+     const newLineregex = /^\s*$/;
+     // const listRegex = /^(\s*-{1})*/;
+     const indentlistRegex = /^\s*-\s/;
+     const listRegex = /^-/;
+     const numberedlistRegex = /^1/;
+     // const indent1listRegex = /^\s{2}-\s/;
+     // const indent2listRegex = /^\s{3,}-\s/;
      let items = [];
 
      for (let i = 0; i < markup.length; i++) {
+         items.push(({
+           '# '              :   <h1 style={{borderBottom: "solid black 3px"}}>{markup[i].split('# ')[1]}</h1>,
+           '## '             :   <h2 style={{borderBottom: "solid black 3px"}}>{markup[i].split('## ')[1]}</h2>,
+           '### '            :   <h3 style={{paddingTop: 20}}>{markup[i].split('## ')[1]}</h3>,
+           ''                :   <br />,
+           '**'              :   < RenderText markup={markup[i].split('**')} inputStyle={{fontWeight: "bold"}} />,
+           '~~'              :   < RenderText markup={markup[i].split('~~')} inputStyle={{textDecoration: "line-through"}} />,
+           '[links]'         :   < RenderLink markup={markup[i].split('[links]')} />,
+           '-'               :   < RenderList markup={markup[i]} />,
+           ' -'              :   < RenderList markup={markup[i]} />,
+           ' - '             :   < RenderList markup={markup[i]} />,
+           '  - '            :   < RenderList markup={markup[i]} />,
+           '   - '           :   < RenderList markup={markup[i]} />,
+           '    - '          :   < RenderList markup={markup[i]} />,
+           '     - '         :   < RenderList markup={markup[i]} />,
+           '      - '        :   < RenderList markup={markup[i]} />,
+           '       - '       :   < RenderList markup={markup[i]} />,
+           '        - '      :   < RenderList markup={markup[i]} />,
+           "default"         :   <p style={{whiteSpace: "pre"}}>{markup[i]}</p>
 
-        if (markup[i].startsWith('# ')) {
-          items.push(<h1 style={{borderBottom: "solid black 3px"}}>{markup[i].split('# ')[1]}</h1>);
-        }
-        else if(markup[i].startsWith('## ')) {
-            items.push(<h2 style={{borderBottom: "solid black 3px"}}>{markup[i].split('## ')[1]}</h2>);
-        }
-        else if(markup[i].startsWith('### ')) {
-          items.push(<h3 style={{paddingTop: 20}}>{markup[i].split('## ')[1]}</h3>);
-        }
-        else if(markup[i] == ""){
-          items.push(<br />)
-        }
-        else if(boldRegex.test(markup[i])) {
-          let word = markup[i].split('**');
-          let text = <p>
-                      {word[0]}
-                      <span style={{fontWeight: "bold"}}>{word[1].replace(/_/g,'')}</span>
-                      {word.slice(2)}
-                    </p>;
-          items.push(text);
-        } else if(crossOutRegex.test(markup[i])) {
-          let word = markup[i].split('~~');
-          let text = <p>
-                      {word[0]}
-                      <span style={{textDecoration: "line-through"}}>{word[1].replace(/~/g,'')}</span>
-                      {word.slice(2)}
-                    </p>;
-          items.push(text);
-        } else if(linksRegex.test(markup[i])) {
-            let word = markup[i].split('[links]');
-            /* parsing the url from the string */
-            let linkLoc = word[1].slice(word[1].indexOf('https'), word[1].indexOf(')'));
-            /* parsing remaining text from the given line */
-            let lastWord = word[1].split(')').slice(1);
-            let text =
-                  <div>
-                      <p>
-                        {word[0]}
-                        <a href={linkLoc} target="_blank">[links]</a>
-                        {lastWord}
-                       </p>
-                  </div>
-            items.push(text);
-        } else if(singleTicksRegex.test(markup[i])) {
-          let word = markup[i].split('`');
-          let text = <p>
-                  {word[0]}
-                  <span style={{ backgroundColor: "white"}}>{word[1]}</span>
-                  {word.slice(2)}
-                 </p>
-          items.push(text);
-        } else if (multiTicksRegex.test(markup[i])) {
-            let text = <span style={{ display: "block", whiteSpace: "pre", backgroundColor: "white"}}>{markup[i]}</span>
-            items.push(text);
-        }
-        else {
-          items.push(<p style={{whiteSpace: "pre"}}>{markup[i]}</p>);
-        }
-      }
+         }) [ markup[i].match(h1regex)              ||
+              markup[i].match(h2regex)              ||
+              markup[i].match(h3regex)              ||
+              markup[i].match(newLineregex)         ||
+              markup[i].match(boldRegex)            ||
+              markup[i].match(crossOutRegex)        ||
+              markup[i].match(linksRegex)           ||
+              markup[i].match(listRegex)            ||
+              markup[i].match(indentlistRegex)      ||
+              "default" ]);
+       }
 
       return (
-
-         <div className='previewer'>
+        <div className='previewer'>
            <Header name='Previewer'/>
            {items}
-         </div>
+        </div>
        );
    }
  }
