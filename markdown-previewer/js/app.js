@@ -99,6 +99,21 @@ class RenderList extends React.Component {
   }
 }
 
+class RenderImage extends React.Component {
+
+  render() {
+    let markup = this.props.markup;
+    let linkText = markup.split('[')[1].split(']')[0];
+    let linkUrl = markup.split(']')[1].replace('(','').replace(')','');
+
+    return (
+      <div>
+        <a href={linkUrl} target='_blank'><img src={linkUrl} alt={linkText}/></a>
+      </div>
+    );
+  }
+}
+
 class Previewer extends React.Component {
 
    constructor(props) {
@@ -117,12 +132,10 @@ class Previewer extends React.Component {
      const h2regex = /^##\s/;
      const h3regex = /^###\s/;
      const newLineregex = /^\s*$/;
-     // const listRegex = /^(\s*-{1})*/;
      const indentlistRegex = /^\s*-\s/;
      const listRegex = /^-/;
      const numberedlistRegex = /^1/;
-     // const indent1listRegex = /^\s{2}-\s/;
-     // const indent2listRegex = /^\s{3,}-\s/;
+     const imgLinkRegex = /^!/;
      let items = [];
 
      for (let i = 0; i < markup.length; i++) {
@@ -144,6 +157,7 @@ class Previewer extends React.Component {
            '      - '        :   < RenderList markup={markup[i]} />,
            '       - '       :   < RenderList markup={markup[i]} />,
            '        - '      :   < RenderList markup={markup[i]} />,
+           '!'               :   < RenderImage markup={markup[i]} />,
            "default"         :   <p style={{whiteSpace: "pre"}}>{markup[i]}</p>
 
          }) [ markup[i].match(h1regex)              ||
@@ -155,6 +169,7 @@ class Previewer extends React.Component {
               markup[i].match(linksRegex)           ||
               markup[i].match(listRegex)            ||
               markup[i].match(indentlistRegex)      ||
+              markup[i].match(imgLinkRegex)         ||
               "default" ]);
        }
 
